@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mini Library Management</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <link rel="stylesheet" href="./styles.css" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+  <nav class="container-fluid topbar">
+    <ul>
+      <li><strong>Mini Library</strong></li>
+      <li><a href="#" id="navLibrary" class="contrast">Library</a></li>
+      <li><a href="#" id="navDashboard" class="hidden">Dashboard</a></li>
+    </ul>
+    <ul>
+      <li><button id="themeToggle" class="outline">Dark</button></li>
+      <li><small id="userEmail">Not signed in</small></li>
+      <li><button id="signOutBtn" class="secondary hidden">Sign out</button></li>
+    </ul>
+  </nav>
+
+  <main class="container">
+    <article>
+      <div id="googleSignIn"></div>
+      <p id="statusBox" class="status"></p>
+    </article>
+
+    <section id="libraryView">
+      <article>
+        <header><strong>Library</strong></header>
+        <div class="grid controls">
+          <input id="searchInput" type="text" placeholder="Search by title or author" />
+          <select id="availabilitySelect">
+            <option value="all">All books</option>
+            <option value="true">Available only</option>
+            <option value="false">Borrowed only</option>
+          </select>
+          <button id="searchBtn">Search</button>
+        </div>
+        <figure>
+          <table>
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Available</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="booksBody"></tbody>
+          </table>
+        </figure>
+      </article>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <article>
+        <header><strong>Dashboard</strong></header>
+        <p>Add books to the catalog (Admin/Librarian).</p>
+        <form id="addBookForm" class="grid controls">
+          <input id="titleInput" type="text" placeholder="Book title" required />
+          <input id="authorInput" type="text" placeholder="Author" required />
+          <button id="addBtn" type="submit">Add Book</button>
+        </form>
+      </article>
+    </section>
+  </main>
+
+  <dialog id="editDialog">
+    <article>
+      <header><strong>Edit Book</strong></header>
+      <form id="editBookForm">
+        <input id="editTitleInput" type="text" placeholder="Book title" required />
+        <input id="editAuthorInput" type="text" placeholder="Author" required />
+        <footer class="dialog-actions">
+          <button type="button" id="cancelEditBtn" class="secondary">Cancel</button>
+          <button type="submit">Save</button>
+        </footer>
+      </form>
+    </article>
+  </dialog>
+
+  <script src="./app.js"></script>
+</body>
+</html>
