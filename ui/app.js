@@ -1,5 +1,5 @@
 const GOOGLE_CLIENT_ID = "308905289637-064rj6fgrqlcebmbh1gg1v2ub20gc93p.apps.googleusercontent.com";
-const API_BASE = localStorage.getItem("api_base_url") || "https://YOUR_RENDER_URL_HERE";
+const API_BASE = resolveApiBase();
 const TOKEN_KEY = "id_token";
 const THEME_KEY = "theme";
 
@@ -25,6 +25,19 @@ const editAuthorInput = document.getElementById("editAuthorInput");
 
 let currentRoles = [];
 let editBookId = null;
+
+function resolveApiBase() {
+  const configured = (localStorage.getItem("api_base_url") || "").trim();
+  if (configured) {
+    return configured.replace(/\/+$/, "");
+  }
+
+  const isLocalHost =
+    window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1";
+
+  return isLocalHost ? "http://localhost:5099" : "https://YOUR_RENDER_URL_HERE";
+}
 
 function decodeJwtPayload(token) {
   try {

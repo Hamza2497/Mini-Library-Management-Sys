@@ -142,3 +142,4 @@
 /Users/hamzahassaf/Desktop/Projects/Dot Net/Mini Library Management Sys/Library.Api/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
 /Users/hamzahassaf/Desktop/Projects/Dot Net/Mini Library Management Sys/Library.Api/bin/Debug/net8.0/Npgsql.dll
 /Users/hamzahassaf/Desktop/Projects/Dot Net/Mini Library Management Sys/Library.Api/bin/Debug/net8.0/Npgsql.EntityFrameworkCore.PostgreSQL.dll
+/Users/hamzahassaf/Desktop/Projects/Dot Net/Mini Library Management Sys/Library.Api/obj/Debug/net8.0/Library.Api.sourcelink.json
