@@ -156,7 +156,10 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
 
     var sb = new StringBuilder();
     sb.Append($"Host={uri.Host};");
-    sb.Append($"Port={uri.Port};");
+    if (uri.Port > 0)
+    {
+        sb.Append($"Port={uri.Port};");
+    }
     sb.Append($"Database={database};");
     sb.Append($"Username={username};");
     sb.Append($"Password={password};");
