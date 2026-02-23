@@ -15,11 +15,11 @@ namespace Library.Api.Migrations
                 name: "Loans",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(nullable: false),
-                    BookId = table.Column<Guid>(nullable: false),
-                    BorrowerUserId = table.Column<string>(nullable: false),
-                    BorrowedAtUtc = table.Column<DateTime>(nullable: false),
-                    ReturnedAtUtc = table.Column<DateTime>(nullable: true)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    BookId = table.Column<Guid>(type: "uuid", nullable: false),
+                    BorrowerUserId = table.Column<string>(type: "text", nullable: false),
+                    BorrowedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    ReturnedAtUtc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
