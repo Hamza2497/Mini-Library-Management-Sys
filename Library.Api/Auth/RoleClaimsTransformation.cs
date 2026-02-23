@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Library.Api.Auth;
@@ -26,6 +27,26 @@ public class RoleClaimsTransformation(IConfiguration configuration) : IClaimsTra
         foreach (var mapping in mappings)
         {
             normalizedMappings[mapping.Key.Trim().ToLowerInvariant()] = mapping.Value;
+        }
+
+        var roleMappingsJson = configuration["ROLE_MAPPINGS_JSON"];
+        if (!string.IsNullOrWhiteSpace(roleMappingsJson))
+        {
+            try
+            {
+                var envMappings = JsonSerializer.Deserialize<Dictionary<string, string>>(roleMappingsJson);
+                if (envMappings is not null)
+                {
+                    foreach (var mapping in envMappings)
+                    {
+                        normalizedMappings[mapping.Key.Trim().ToLowerInvariant()] = mapping.Value;
+                    }
+                }
+            }
+            catch
+            {
+                // Keep app running with section-based mappings if env JSON is malformed.
+            }
         }
 
         if (normalizedMappings.TryGetValue(normalizedEmail, out var role)
