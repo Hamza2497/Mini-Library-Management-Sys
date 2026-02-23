@@ -29,6 +29,10 @@ public class RoleClaimsTransformation(IConfiguration configuration) : IClaimsTra
             normalizedMappings[mapping.Key.Trim().ToLowerInvariant()] = mapping.Value;
         }
 
+        ApplyEmailListRole("ADMIN_EMAILS", "Admin", normalizedMappings);
+        ApplyEmailListRole("LIBRARIAN_EMAILS", "Librarian", normalizedMappings);
+        ApplyEmailListRole("MEMBER_EMAILS", "Member", normalizedMappings);
+
         var roleMappingsJson = configuration["ROLE_MAPPINGS_JSON"];
         if (!string.IsNullOrWhiteSpace(roleMappingsJson))
         {
@@ -56,5 +60,20 @@ public class RoleClaimsTransformation(IConfiguration configuration) : IClaimsTra
         }
 
         return Task.FromResult(principal);
+    }
+
+    private void ApplyEmailListRole(string key, string role, IDictionary<string, string> mappings)
+    {
+        var raw = configuration[key];
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return;
+        }
+
+        var emails = raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        foreach (var email in emails)
+        {
+            mappings[email.ToLowerInvariant()] = role;
+        }
     }
 }
