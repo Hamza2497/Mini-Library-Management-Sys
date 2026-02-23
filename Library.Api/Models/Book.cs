@@ -14,5 +14,15 @@ public class Book
     [MaxLength(200)]
     public string Author { get; set; } = string.Empty;
 
+    [MaxLength(100)]
+    public string? Category { get; set; }
+
+    public string? Tags { get; set; }
+
+    [MaxLength(2000)]
+    public string? Description { get; set; }
+
+    public DateTime? UpdatedAtUtc { get; set; }
+
     public ICollection<Loan> Loans { get; set; } = new List<Loan>();
 }

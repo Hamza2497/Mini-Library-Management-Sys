@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Library.Api.Data;
 using Library.Api.Models;
+using Library.Api.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,7 +11,7 @@ namespace Library.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BooksController(LibraryDbContext dbContext) : ControllerBase
+public class BooksController(LibraryDbContext dbContext, BookEnrichmentService enrichmentService) : ControllerBase
 {
     [HttpGet]
     [Authorize(Policy = "MemberOrAbove")]
@@ -60,14 +61,14 @@ public class BooksController(LibraryDbContext dbContext) : ControllerBase
             .OrderBy(b => b.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(b => new BookListItemResponse(
-                b.Id,
-                b.Title,
-                b.Author,
-                !b.Loans.Any(l => l.ReturnedAtUtc == null)))
+            .Select(b => new
+            {
+                Book = b,
+                IsAvailable = !b.Loans.Any(l => l.ReturnedAtUtc == null)
+            })
             .ToListAsync();
 
-        return Ok(new PagedBooksResponse(items, page, pageSize, total));
+        return Ok(new PagedBooksResponse(items.Select(x => ToResponse(x.Book, x.IsAvailable)).ToList(), page, pageSize, total));
     }
 
     [HttpPost]
@@ -78,13 +79,14 @@ public class BooksController(LibraryDbContext dbContext) : ControllerBase
         {
             Id = Guid.NewGuid(),
             Title = request.Title.Trim(),
-            Author = request.Author.Trim()
+            Author = request.Author.Trim(),
+            UpdatedAtUtc = DateTime.UtcNow
         };
 
         dbContext.Books.Add(book);
         await dbContext.SaveChangesAsync();
 
-        var response = new BookListItemResponse(book.Id, book.Title, book.Author, true);
+        var response = ToResponse(book, true);
         return CreatedAtAction(nameof(GetBooks), new { id = book.Id }, response);
     }
 
@@ -100,10 +102,11 @@ public class BooksController(LibraryDbContext dbContext) : ControllerBase
 
         book.Title = request.Title.Trim();
         book.Author = request.Author.Trim();
+        book.UpdatedAtUtc = DateTime.UtcNow;
         await dbContext.SaveChangesAsync();
 
         var isAvailable = !await dbContext.Loans.AnyAsync(l => l.BookId == id && l.ReturnedAtUtc == null);
-        var response = new BookListItemResponse(book.Id, book.Title, book.Author, isAvailable);
+        var response = ToResponse(book, isAvailable);
         return Ok(response);
     }
 
@@ -206,6 +209,50 @@ public class BooksController(LibraryDbContext dbContext) : ControllerBase
             activeLoan.ReturnedAtUtc);
         return Ok(response);
     }
+
+    [HttpPost("{id:guid}/ai/enrich")]
+    [Authorize(Policy = "LibrarianOrAdmin")]
+    public async Task<ActionResult<BookListItemResponse>> EnrichBook(Guid id)
+    {
+        var book = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
+        if (book is null)
+        {
+            return NotFound(new { message = "Book not found." });
+        }
+
+        var enriched = enrichmentService.Enrich(book.Title, book.Author, book.Description);
+        book.Category = enriched.Category;
+        book.Tags = string.Join(',', enriched.Tags);
+        book.Description = enriched.Description;
+        book.UpdatedAtUtc = DateTime.UtcNow;
+
+        await dbContext.SaveChangesAsync();
+
+        var isAvailable = !await dbContext.Loans.AnyAsync(l => l.BookId == id && l.ReturnedAtUtc == null);
+        return Ok(ToResponse(book, isAvailable));
+    }
+
+    private static IReadOnlyList<string> ParseTags(string? tags)
+    {
+        return string.IsNullOrWhiteSpace(tags)
+            ? []
+            : tags.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Take(5)
+                .ToArray();
+    }
+
+    private static BookListItemResponse ToResponse(Book book, bool isAvailable)
+    {
+        return new BookListItemResponse(
+            book.Id,
+            book.Title,
+            book.Author,
+            isAvailable,
+            book.Category,
+            ParseTags(book.Tags),
+            book.Description,
+            book.UpdatedAtUtc);
+    }
 }
 
 public class CreateBookRequest
@@ -235,7 +282,15 @@ public class UpdateBookRequest
     public string Author { get; set; } = string.Empty;
 }
 
-public record BookListItemResponse(Guid Id, string Title, string Author, bool IsAvailable);
+public record BookListItemResponse(
+    Guid Id,
+    string Title,
+    string Author,
+    bool IsAvailable,
+    string? Category,
+    IReadOnlyList<string> Tags,
+    string? Description,
+    DateTime? UpdatedAtUtc);
 public record PagedBooksResponse(IReadOnlyList<BookListItemResponse> Items, int Page, int PageSize, int Total);
 
 public record LoanResponse(

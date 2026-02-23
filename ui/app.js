@@ -24,6 +24,11 @@ const editDialog = document.getElementById("editDialog");
 const editBookForm = document.getElementById("editBookForm");
 const editTitleInput = document.getElementById("editTitleInput");
 const editAuthorInput = document.getElementById("editAuthorInput");
+const detailsDialog = document.getElementById("detailsDialog");
+const detailsTitle = document.getElementById("detailsTitle");
+const detailsCategory = document.getElementById("detailsCategory");
+const detailsTags = document.getElementById("detailsTags");
+const detailsDescription = document.getElementById("detailsDescription");
 
 let currentRoles = [];
 let editBookId = null;
@@ -184,15 +189,19 @@ function renderBooks(items) {
 
     if (canManageBooks()) {
       actions += ` <button data-action="edit" data-id="${b.id}" data-title="${encodeURIComponent(b.title)}" data-author="${encodeURIComponent(b.author)}">Edit</button>`;
+      actions += ` <button data-action="enrich" data-id="${b.id}">Enrich</button>`;
     }
 
     if (canDeleteBooks()) {
       actions += ` <button data-action="delete" data-id="${b.id}" class="secondary">Delete</button>`;
     }
 
+    actions += ` <button data-action="details" data-title="${encodeURIComponent(b.title)}" data-category="${encodeURIComponent(b.category || "")}" data-tags="${encodeURIComponent((b.tags || []).join(", "))}" data-description="${encodeURIComponent(b.description || "")}">Details</button>`;
+
     tr.innerHTML = `
       <td>${b.title}</td>
       <td>${b.author}</td>
+      <td>${b.category ? `<span class="category-badge">${b.category}</span>` : "-"}</td>
       <td>${b.isAvailable ? "Yes" : "No"}</td>
       <td class="actions">${actions}</td>
     `;
@@ -277,6 +286,24 @@ async function deleteBook(bookId) {
   }
 }
 
+async function enrichBook(bookId) {
+  try {
+    await apiFetch(`/api/books/${bookId}/ai/enrich`, { method: "POST" });
+    setStatus("Enriched.");
+    await loadBooks();
+  } catch (err) {
+    setStatus(err.message, true);
+  }
+}
+
+function openDetails(title, category, tags, description) {
+  detailsTitle.textContent = `${title} Details`;
+  detailsCategory.textContent = category || "-";
+  detailsTags.textContent = tags || "-";
+  detailsDescription.textContent = description || "-";
+  detailsDialog.showModal();
+}
+
 async function addBook(event) {
   event.preventDefault();
 
@@ -351,11 +378,19 @@ booksBody.addEventListener("click", (e) => {
   if (action === "checkout") checkoutBook(id);
   if (action === "checkin") checkinBook(id);
   if (action === "edit") openEditDialog(id, decodeURIComponent(title), decodeURIComponent(author));
+  if (action === "enrich") enrichBook(id);
   if (action === "delete") deleteBook(id);
+  if (action === "details") openDetails(
+    decodeURIComponent(button.dataset.title || ""),
+    decodeURIComponent(button.dataset.category || ""),
+    decodeURIComponent(button.dataset.tags || ""),
+    decodeURIComponent(button.dataset.description || "")
+  );
 });
 
 editBookForm.addEventListener("submit", saveEdit);
 document.getElementById("cancelEditBtn").addEventListener("click", () => editDialog.close());
+document.getElementById("closeDetailsBtn").addEventListener("click", () => detailsDialog.close());
 
 signOutBtn.addEventListener("click", async () => {
   localStorage.removeItem(TOKEN_KEY);

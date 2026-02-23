@@ -1,6 +1,7 @@
 using Library.Api.Auth;
 using Library.Api.Data;
 using Library.Api.Models;
+using Library.Api.Services;
 using System.Text;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -14,6 +15,7 @@ var googleClientId = builder.Configuration["GOOGLE_CLIENT_ID"]
 const string uiCorsPolicy = "UiCors";
 
 builder.Services.AddControllers();
+builder.Services.AddSingleton<BookEnrichmentService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

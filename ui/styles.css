@@ -36,6 +36,15 @@ main.container {
   margin-bottom: 0.25rem;
 }
 
+.category-badge {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--pico-primary-border);
+  color: var(--pico-primary);
+  font-size: 0.75rem;
+}
+
 .dialog-actions {
   display: flex;
   justify-content: flex-end;

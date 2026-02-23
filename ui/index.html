@@ -46,6 +46,7 @@
               <tr>
                 <th>Title</th>
                 <th>Author</th>
+                <th>Category</th>
                 <th>Available</th>
                 <th>Actions</th>
               </tr>
@@ -80,6 +81,19 @@
           <button type="submit">Save</button>
         </footer>
       </form>
+    </article>
+  </dialog>
+
+  <dialog id="detailsDialog">
+    <article>
+      <header><strong id="detailsTitle">Book Details</strong></header>
+      <p><strong>Category:</strong> <span id="detailsCategory">-</span></p>
+      <p><strong>Tags:</strong> <span id="detailsTags">-</span></p>
+      <p><strong>Description:</strong></p>
+      <p id="detailsDescription">-</p>
+      <footer class="dialog-actions">
+        <button type="button" id="closeDetailsBtn">Close</button>
+      </footer>
     </article>
   </dialog>
 
