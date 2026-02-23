@@ -27,10 +27,19 @@ public class BooksController(LibraryDbContext dbContext) : ControllerBase
 
         if (!string.IsNullOrWhiteSpace(q))
         {
-            var search = q.Trim().ToLower();
-            query = query.Where(b =>
-                b.Title.ToLower().Contains(search) ||
-                b.Author.ToLower().Contains(search));
+            var search = $"%{q.Trim()}%";
+            if (dbContext.Database.IsNpgsql())
+            {
+                query = query.Where(b =>
+                    EF.Functions.ILike(b.Title, search) ||
+                    EF.Functions.ILike(b.Author, search));
+            }
+            else
+            {
+                query = query.Where(b =>
+                    EF.Functions.Like(b.Title, search) ||
+                    EF.Functions.Like(b.Author, search));
+            }
         }
 
         if (available.HasValue)

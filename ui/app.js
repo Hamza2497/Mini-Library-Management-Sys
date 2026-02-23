@@ -1,4 +1,6 @@
-const GOOGLE_CLIENT_ID = "308905289637-064rj6fgrqlcebmbh1gg1v2ub20gc93p.apps.googleusercontent.com";
+const GOOGLE_CLIENT_ID =
+  (localStorage.getItem("google_client_id") || "").trim() ||
+  "308905289637-064rj6fgrqlcebmbh1gg1v2ub20gc93p.apps.googleusercontent.com";
 const API_BASE = resolveApiBase();
 const TOKEN_KEY = "id_token";
 const THEME_KEY = "theme";
@@ -159,7 +161,11 @@ async function apiFetch(path, options = {}) {
   }
 
   if (!response.ok) {
-    const message = (json && json.message) || response.statusText || "Request failed";
+    const message =
+      (json && json.message) ||
+      (typeof json === "string" && json.trim().length > 0 ? json.split("\n")[0] : "") ||
+      response.statusText ||
+      "Request failed";
     throw new Error(`${response.status} ${message}`);
   }
 

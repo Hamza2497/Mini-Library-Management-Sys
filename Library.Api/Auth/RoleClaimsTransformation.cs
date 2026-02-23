@@ -19,10 +19,16 @@ public class RoleClaimsTransformation(IConfiguration configuration) : IClaimsTra
             return Task.FromResult(principal);
         }
 
+        var normalizedEmail = email.Trim().ToLowerInvariant();
         var mappings = configuration.GetSection("RoleMappings").Get<Dictionary<string, string>>()
             ?? new Dictionary<string, string>();
+        var normalizedMappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var mapping in mappings)
+        {
+            normalizedMappings[mapping.Key.Trim().ToLowerInvariant()] = mapping.Value;
+        }
 
-        if (mappings.TryGetValue(email, out var role)
+        if (normalizedMappings.TryGetValue(normalizedEmail, out var role)
             && !identity.HasClaim(ClaimTypes.Role, role))
         {
             identity.AddClaim(new Claim(ClaimTypes.Role, role));

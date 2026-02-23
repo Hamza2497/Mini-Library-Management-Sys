@@ -8,7 +8,8 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-const string googleClientId = "308905289637-064rj6fgrqlcebmbh1gg1v2ub20gc93p.apps.googleusercontent.com";
+var googleClientId = builder.Configuration["GOOGLE_CLIENT_ID"]
+    ?? "308905289637-064rj6fgrqlcebmbh1gg1v2ub20gc93p.apps.googleusercontent.com";
 const string uiCorsPolicy = "UiCors";
 
 builder.Services.AddControllers();
@@ -132,17 +133,9 @@ var isEfDesignTime = AppDomain.CurrentDomain.GetAssemblies()
 
 if (!isEfDesignTime)
 {
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
-        db.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogError(ex, "Database migration failed during startup.");
-    }
-
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
+    db.Database.Migrate();
     app.Run();
 }
 
