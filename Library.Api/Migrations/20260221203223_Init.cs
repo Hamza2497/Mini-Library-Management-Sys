@@ -14,10 +14,9 @@ namespace Library.Api.Migrations
                 name: "Books",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Title = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false),
-                    Author = table.Column<string>(type: "TEXT", maxLength: 200, nullable: false)
+                    Id = table.Column<Guid>(nullable: false),
+                    Title = table.Column<string>(maxLength: 200, nullable: false),
+                    Author = table.Column<string>(maxLength: 200, nullable: false)
                 },
                 constraints: table =>
                 {

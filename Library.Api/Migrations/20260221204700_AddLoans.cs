@@ -11,24 +11,15 @@ namespace Library.Api.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<Guid>(
-                name: "Id",
-                table: "Books",
-                type: "TEXT",
-                nullable: false,
-                oldClrType: typeof(int),
-                oldType: "INTEGER")
-                .OldAnnotation("Sqlite:Autoincrement", true);
-
             migrationBuilder.CreateTable(
                 name: "Loans",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    BookId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    BorrowerUserId = table.Column<string>(type: "TEXT", nullable: false),
-                    BorrowedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ReturnedAtUtc = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    Id = table.Column<Guid>(nullable: false),
+                    BookId = table.Column<Guid>(nullable: false),
+                    BorrowerUserId = table.Column<string>(nullable: false),
+                    BorrowedAtUtc = table.Column<DateTime>(nullable: false),
+                    ReturnedAtUtc = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -54,15 +45,6 @@ namespace Library.Api.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Loans");
-
-            migrationBuilder.AlterColumn<int>(
-                name: "Id",
-                table: "Books",
-                type: "INTEGER",
-                nullable: false,
-                oldClrType: typeof(Guid),
-                oldType: "TEXT")
-                .Annotation("Sqlite:Autoincrement", true);
         }
     }
 }
