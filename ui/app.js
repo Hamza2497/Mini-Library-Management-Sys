@@ -43,7 +43,7 @@ function resolveApiBase() {
     window.location.hostname === "localhost" ||
     window.location.hostname === "127.0.0.1";
 
-  return isLocalHost ? "http://localhost:5099" : "https://YOUR_RENDER_URL_HERE";
+  return isLocalHost ? "http://localhost:5099" : "https://mini-library-api-po6c.onrender.com";
 }
 
 function decodeJwtPayload(token) {
