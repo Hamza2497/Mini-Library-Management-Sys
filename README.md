@@ -10,7 +10,7 @@
 - Search/filter/pagination on books list.
 - Google SSO using Google ID token (JWT Bearer).
 - Role-based authorization: Admin, Librarian, Member.
-- AI Enrich stub: deterministic category/tags/description generation.
+- AI Book Enrichment: Gemini API-powered category, tags, and description generation.
 
 ## Roles & Permissions
 - `Admin`: full access (add/edit/delete, enrich, operational actions).
@@ -19,9 +19,17 @@
 - Role source: `RoleMappings` in `Library.Api/appsettings.Development.json`.
 - Current mapped admin email: `hamzahassaf08@gmail.com`.
 
+## Database Support
+The API is **database-aware** and automatically uses the appropriate database:
+- **Local Development**: SQLite (`library.db`) - no external dependencies
+- **Production**: PostgreSQL - set via `DATABASE_URL` environment variable
+
+The code intelligently detects the database type and configures UUID handling accordingly.
+
 ## Local Setup
 - API:
   - `cd Library.Api`
+  - Set Gemini API key: `export GEMINI_API_KEY=your_key`
   - `ASPNETCORE_ENVIRONMENT=Development dotnet run --no-launch-profile --urls http://localhost:5099`
 - UI:
   - `cd ui`
@@ -29,13 +37,14 @@
   - Open `http://localhost:5173`
 
 ## Deployment
-- API: Render (Docker + Postgres).
+- API: Render (Docker + PostgreSQL).
 - UI: GitHub Pages via `.github/workflows/deploy-ui-pages.yml`.
-- Required env vars (Render):
-  - `GOOGLE_CLIENT_ID`
-  - `DATABASE_URL`
-  - `CORS_ORIGINS=https://hamza2497.github.io`
-  - `ASPNETCORE_ENVIRONMENT=Development` (for Swagger visibility in this setup)
+- Required environment variables (Render):
+  - `GOOGLE_CLIENT_ID` - Google OAuth client ID
+  - `DATABASE_URL` - PostgreSQL connection string (auto-detected)
+  - `GEMINI_API_KEY` - Gemini API key for book enrichment
+  - `CORS_ORIGINS=https://hamza2497.github.io` - CORS allowed origins
+  - `ASPNETCORE_ENVIRONMENT=Development` - for Swagger visibility
 
 ## Troubleshooting
 - `401 Unauthorized`:
