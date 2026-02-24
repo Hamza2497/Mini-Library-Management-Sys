@@ -396,6 +396,16 @@ signOutBtn.addEventListener("click", async () => {
   setStatus("Signed out.");
 });
 
+navLibrary.addEventListener("click", (e) => {
+  e.preventDefault();
+  showLibrary();
+});
+
+navDashboard.addEventListener("click", (e) => {
+  e.preventDefault();
+  showDashboard();
+});
+
 initTheme();
 updateAuthButtons();
 initGoogle();
