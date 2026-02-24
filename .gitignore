@@ -4,3 +4,4 @@ obj/
 *.db-shm
 *.db-wal
 .DS_Store
+appsettings.Development.json

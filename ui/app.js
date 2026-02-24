@@ -357,35 +357,31 @@ function initGoogle(attempt = 0) {
   });
 }
 
-navLibrary.addEventListener("click", (e) => {
-  e.preventDefault();
-  showLibrary();
-});
-
-navDashboard.addEventListener("click", (e) => {
-  e.preventDefault();
-  showDashboard();
-});
-
-document.getElementById("searchBtn").addEventListener("click", loadBooks);
-addBookForm.addEventListener("submit", addBook);
-
-booksBody.addEventListener("click", (e) => {
-  const button = e.target.closest("button[data-action]");
+booksBody.addEventListener("click", (event) => {
+  const button = event.target.closest("button");
   if (!button) return;
 
-  const { action, id, title, author } = button.dataset;
-  if (action === "checkout") checkoutBook(id);
-  if (action === "checkin") checkinBook(id);
-  if (action === "edit") openEditDialog(id, decodeURIComponent(title), decodeURIComponent(author));
-  if (action === "enrich") enrichBook(id);
-  if (action === "delete") deleteBook(id);
-  if (action === "details") openDetails(
-    decodeURIComponent(button.dataset.title || ""),
-    decodeURIComponent(button.dataset.category || ""),
-    decodeURIComponent(button.dataset.tags || ""),
-    decodeURIComponent(button.dataset.description || "")
-  );
+  const action = button.dataset.action;
+  const bookId = button.dataset.id;
+
+  if (action === "checkout") {
+    checkoutBook(bookId);
+  } else if (action === "checkin") {
+    checkinBook(bookId);
+  } else if (action === "edit") {
+    openEditDialog(bookId, decodeURIComponent(button.dataset.title || ""), decodeURIComponent(button.dataset.author || ""));
+  } else if (action === "enrich") {
+    enrichBook(bookId);
+  } else if (action === "delete") {
+    deleteBook(bookId);
+  } else if (action === "details") {
+    openDetails(
+      decodeURIComponent(button.dataset.title || ""),
+      decodeURIComponent(button.dataset.category || ""),
+      decodeURIComponent(button.dataset.tags || ""),
+      decodeURIComponent(button.dataset.description || "")
+    );
+  }
 });
 
 editBookForm.addEventListener("submit", saveEdit);

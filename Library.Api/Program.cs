@@ -15,7 +15,7 @@ var googleClientId = builder.Configuration["GOOGLE_CLIENT_ID"]
 const string uiCorsPolicy = "UiCors";
 
 builder.Services.AddControllers();
-builder.Services.AddSingleton<BookEnrichmentService>();
+builder.Services.AddHttpClient<BookEnrichmentService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {

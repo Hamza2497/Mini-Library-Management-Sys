@@ -135,10 +135,30 @@ public class BooksController(LibraryDbContext dbContext, BookEnrichmentService e
     [Authorize(Policy = "MemberOrAbove")]
     public async Task<ActionResult<LoanResponse>> CheckoutBook(Guid id, [FromBody] CheckoutRequest request)
     {
-        if (!await dbContext.Books.AnyAsync(b => b.Id == id))
+        Console.WriteLine($"[CHECKOUT] Received ID: {id}");
+        Console.WriteLine($"[CHECKOUT] ID formats - D: {id:D}, B: {id:B}, N: {id:N}");
+
+        var bookCount = await dbContext.Books.CountAsync();
+        Console.WriteLine($"[CHECKOUT] Total books in DB: {bookCount}");
+        var bookIds = await dbContext.Books.Select(b => b.Id).ToListAsync();
+        foreach (var bid in bookIds)
+            Console.WriteLine($"[CHECKOUT]   DB has: {bid}");
+
+        Console.WriteLine($"[CHECKOUT] About to query with ID parameter: '{id:D}'");
+        var book = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
+
+        if (book is null)
         {
+            Console.WriteLine($"[CHECKOUT] NOT FOUND - Query returned null");
+            Console.WriteLine($"[CHECKOUT] Trying direct SQL comparison...");
+            var directCheck = await dbContext.Books.FromSqlInterpolated($"SELECT * FROM Books WHERE Id = {id:D}").FirstOrDefaultAsync();
+            if (directCheck != null)
+                Console.WriteLine($"[CHECKOUT] Direct SQL found it! Book: {directCheck.Title}");
+            else
+                Console.WriteLine($"[CHECKOUT] Direct SQL also didn't find it");
             return NotFound(new { message = "Book not found." });
         }
+        Console.WriteLine($"[CHECKOUT] FOUND: {book.Title}");
 
         var activeLoan = await dbContext.Loans
             .FirstOrDefaultAsync(l => l.BookId == id && l.ReturnedAtUtc == null);
@@ -214,13 +234,22 @@ public class BooksController(LibraryDbContext dbContext, BookEnrichmentService e
     [Authorize(Policy = "LibrarianOrAdmin")]
     public async Task<ActionResult<BookListItemResponse>> EnrichBook(Guid id)
     {
+        Console.WriteLine($"[ENRICH] Received ID: {id}");
+        var bookCount = await dbContext.Books.CountAsync();
+        Console.WriteLine($"[ENRICH] Total books in DB: {bookCount}");
+        var bookIds = await dbContext.Books.Select(b => b.Id).ToListAsync();
+        foreach (var bid in bookIds)
+            Console.WriteLine($"[ENRICH]   DB has: {bid}");
+
         var book = await dbContext.Books.FirstOrDefaultAsync(b => b.Id == id);
         if (book is null)
         {
+            Console.WriteLine($"[ENRICH] NOT FOUND");
             return NotFound(new { message = "Book not found." });
         }
+        Console.WriteLine($"[ENRICH] FOUND");
 
-        var enriched = enrichmentService.Enrich(book.Title, book.Author, book.Description);
+        var enriched = await enrichmentService.EnrichAsync(book.Title, book.Author);
         book.Category = enriched.Category;
         book.Tags = string.Join(',', enriched.Tags);
         book.Description = enriched.Description;

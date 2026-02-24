@@ -3,98 +3,216 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mini Library Management</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>Mini Library</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./styles.css" />
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <nav class="container-fluid topbar">
-    <ul>
-      <li><strong>Mini Library</strong></li>
-      <li><a href="#" id="navLibrary" class="contrast">Library</a></li>
-      <li><a href="#" id="navDashboard" class="hidden">Dashboard</a></li>
-    </ul>
-    <ul>
-      <li><button id="themeToggle" class="outline">Dark</button></li>
-      <li><small id="userEmail">Not signed in</small></li>
-      <li><button id="signOutBtn" class="secondary hidden">Sign out</button></li>
-    </ul>
-  </nav>
 
-  <main class="container">
-    <article>
-      <div id="googleSignIn"></div>
-      <p id="statusBox" class="status"></p>
-    </article>
+  <!-- ═══════════════════════════════════════════════
+       NAVIGATION
+  ════════════════════════════════════════════════ -->
+  <header class="topbar">
+    <div class="topbar-inner">
 
+      <div class="topbar-left">
+        <!-- Brand -->
+        <div class="brand">
+          <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+               viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"
+               aria-hidden="true">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+          </svg>
+          <span class="brand-name">Mini Library</span>
+        </div>
+
+        <!-- Primary nav links -->
+        <nav class="topbar-nav" aria-label="Primary">
+          <a href="#" id="navLibrary" class="nav-link">Library</a>
+          <a href="#" id="navDashboard" class="nav-link hidden">Dashboard</a>
+        </nav>
+      </div>
+
+      <div class="topbar-right">
+        <button id="themeToggle" class="theme-btn" aria-label="Toggle colour theme">Dark</button>
+        <span id="userEmail" class="user-email">Not signed in</span>
+        <div id="googleSignIn"></div>
+        <button id="signOutBtn" class="btn btn-sm btn-ghost hidden">Sign out</button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════
+       MAIN CONTENT
+  ════════════════════════════════════════════════ -->
+  <main class="main">
+
+    <!-- Global status / toast -->
+    <p id="statusBox" class="status"></p>
+
+    <!-- ─────────────────────────────────────────────
+         LIBRARY VIEW
+    ────────────────────────────────────────────── -->
     <section id="libraryView">
-      <article>
-        <header><strong>Library</strong></header>
-        <div class="grid controls">
-          <input id="searchInput" type="text" placeholder="Search by title or author" />
-          <select id="availabilitySelect">
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Library Catalog</h1>
+          <p class="page-subtitle">Search and browse the book collection</p>
+        </div>
+      </div>
+
+      <!-- Search & filter toolbar -->
+      <div class="card search-card">
+        <div class="search-row">
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            <input id="searchInput" type="text"
+                   placeholder="Search by title or author…"
+                   class="form-input" />
+          </div>
+          <select id="availabilitySelect" class="form-select">
             <option value="all">All books</option>
             <option value="true">Available only</option>
             <option value="false">Borrowed only</option>
           </select>
-          <button id="searchBtn">Search</button>
+          <button id="searchBtn" class="btn btn-primary">Search</button>
         </div>
-        <figure>
-          <table>
+      </div>
+
+      <!-- Books table -->
+      <div class="card table-card">
+        <div class="table-scroll">
+          <table class="books-table">
             <thead>
               <tr>
                 <th>Title</th>
                 <th>Author</th>
                 <th>Category</th>
-                <th>Available</th>
+                <th>Status</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="booksBody"></tbody>
           </table>
-        </figure>
-      </article>
+        </div>
+      </div>
+
     </section>
 
+    <!-- ─────────────────────────────────────────────
+         DASHBOARD VIEW
+    ────────────────────────────────────────────── -->
     <section id="dashboardView" class="hidden">
-      <article>
-        <header><strong>Dashboard</strong></header>
-        <p>Add books to the catalog (Admin/Librarian).</p>
-        <form id="addBookForm" class="grid controls">
-          <input id="titleInput" type="text" placeholder="Book title" required />
-          <input id="authorInput" type="text" placeholder="Author" required />
-          <button id="addBtn" type="submit">Add Book</button>
+
+      <div class="page-header">
+        <div>
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Manage the catalog — Admin &amp; Librarian only</p>
+        </div>
+      </div>
+
+      <div class="card form-card">
+        <div class="card-header">
+          <h2 class="card-title">Add New Book</h2>
+          <p class="card-desc">Add a title to the catalog. Use the Enrich action to auto-generate metadata afterwards.</p>
+        </div>
+        <form id="addBookForm" class="add-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="titleInput" class="form-label">Title <span class="required" aria-hidden="true">*</span></label>
+              <input id="titleInput" type="text" placeholder="e.g. The Great Gatsby"
+                     class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label for="authorInput" class="form-label">Author <span class="required" aria-hidden="true">*</span></label>
+              <input id="authorInput" type="text" placeholder="e.g. F. Scott Fitzgerald"
+                     class="form-input" required />
+            </div>
+          </div>
+          <div class="form-footer">
+            <button id="addBtn" type="submit" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15"
+                   viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              Add Book
+            </button>
+          </div>
         </form>
-      </article>
+      </div>
+
     </section>
+
   </main>
 
-  <dialog id="editDialog">
-    <article>
-      <header><strong>Edit Book</strong></header>
-      <form id="editBookForm">
-        <input id="editTitleInput" type="text" placeholder="Book title" required />
-        <input id="editAuthorInput" type="text" placeholder="Author" required />
-        <footer class="dialog-actions">
-          <button type="button" id="cancelEditBtn" class="secondary">Cancel</button>
-          <button type="submit">Save</button>
-        </footer>
+  <!-- ═══════════════════════════════════════════════
+       EDIT BOOK DIALOG
+  ════════════════════════════════════════════════ -->
+  <dialog id="editDialog" class="dialog">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <h2 class="dialog-title">Edit Book</h2>
+      </div>
+      <form id="editBookForm" class="dialog-body">
+        <div class="form-group">
+          <label for="editTitleInput" class="form-label">Title <span class="required" aria-hidden="true">*</span></label>
+          <input id="editTitleInput" type="text" placeholder="Book title"
+                 class="form-input" required />
+        </div>
+        <div class="form-group">
+          <label for="editAuthorInput" class="form-label">Author <span class="required" aria-hidden="true">*</span></label>
+          <input id="editAuthorInput" type="text" placeholder="Author name"
+                 class="form-input" required />
+        </div>
+        <div class="dialog-footer">
+          <button type="button" id="cancelEditBtn" class="btn btn-ghost">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
       </form>
-    </article>
+    </div>
   </dialog>
 
-  <dialog id="detailsDialog">
-    <article>
-      <header><strong id="detailsTitle">Book Details</strong></header>
-      <p><strong>Category:</strong> <span id="detailsCategory">-</span></p>
-      <p><strong>Tags:</strong> <span id="detailsTags">-</span></p>
-      <p><strong>Description:</strong></p>
-      <p id="detailsDescription">-</p>
-      <footer class="dialog-actions">
-        <button type="button" id="closeDetailsBtn">Close</button>
-      </footer>
-    </article>
+  <!-- ═══════════════════════════════════════════════
+       BOOK DETAILS DIALOG
+  ════════════════════════════════════════════════ -->
+  <dialog id="detailsDialog" class="dialog">
+    <div class="dialog-card">
+      <div class="dialog-header">
+        <h2 class="dialog-title" id="detailsTitle">Book Details</h2>
+      </div>
+      <div class="dialog-body">
+        <dl class="detail-list">
+          <div class="detail-item">
+            <dt class="detail-label">Category</dt>
+            <dd class="detail-value" id="detailsCategory">—</dd>
+          </div>
+          <div class="detail-item">
+            <dt class="detail-label">Tags</dt>
+            <dd class="detail-value" id="detailsTags">—</dd>
+          </div>
+          <div class="detail-item detail-item--block">
+            <dt class="detail-label">Description</dt>
+            <dd class="detail-desc" id="detailsDescription">—</dd>
+          </div>
+        </dl>
+        <div class="dialog-footer">
+          <button type="button" id="closeDetailsBtn" class="btn btn-primary">Close</button>
+        </div>
+      </div>
+    </div>
   </dialog>
 
   <script src="./app.js"></script>
