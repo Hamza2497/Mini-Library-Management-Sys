@@ -11,26 +11,30 @@ public class LibraryDbContext(DbContextOptions<LibraryDbContext> options) : DbCo
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Value converter to convert Guid to/from string for SQLite TEXT columns
-        var guidConverter = new ValueConverter<Guid, string>(
-            g => g.ToString("D"),
-            s => string.IsNullOrEmpty(s) ? Guid.Empty : Guid.Parse(s));
+        var isPostgres = Database.IsNpgsql();
 
-        // Configure Book Guid columns to use TEXT with value converter
-        modelBuilder.Entity<Book>()
-            .Property(b => b.Id)
-            .HasColumnType("TEXT")
-            .HasConversion(guidConverter);
+        // Only apply Guid TEXT conversion for SQLite; PostgreSQL uses native UUID
+        if (!isPostgres)
+        {
+            var guidConverter = new ValueConverter<Guid, string>(
+                g => g.ToString("D"),
+                s => string.IsNullOrEmpty(s) ? Guid.Empty : Guid.Parse(s));
 
-        modelBuilder.Entity<Loan>()
-            .Property(l => l.Id)
-            .HasColumnType("TEXT")
-            .HasConversion(guidConverter);
+            modelBuilder.Entity<Book>()
+                .Property(b => b.Id)
+                .HasColumnType("TEXT")
+                .HasConversion(guidConverter);
 
-        modelBuilder.Entity<Loan>()
-            .Property(l => l.BookId)
-            .HasColumnType("TEXT")
-            .HasConversion(guidConverter);
+            modelBuilder.Entity<Loan>()
+                .Property(l => l.Id)
+                .HasColumnType("TEXT")
+                .HasConversion(guidConverter);
+
+            modelBuilder.Entity<Loan>()
+                .Property(l => l.BookId)
+                .HasColumnType("TEXT")
+                .HasConversion(guidConverter);
+        }
 
         modelBuilder.Entity<Loan>()
             .HasOne(l => l.Book)
