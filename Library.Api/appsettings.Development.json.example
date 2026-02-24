@@ -3,7 +3,7 @@
     "DefaultConnection": "Data Source=library.db"
   },
   "Gemini": {
-    "ApiKey": "AIzaSyDkDCC5r9P2EJ86wh0eFNGQssmiklxJMNQ"
+    "ApiKey": "YOUR_GEMINI_API_KEY_HERE"
   },
   "Logging": {
     "LogLevel": {
