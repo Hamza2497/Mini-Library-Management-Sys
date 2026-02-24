@@ -139,6 +139,7 @@ if (!isEfDesignTime)
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<LibraryDbContext>();
     db.Database.Migrate();
+    ClearStaleEnrichmentData(db);
     SeedBooksIfEmpty(db);
     app.Run();
 }
@@ -162,6 +163,26 @@ static string ConvertDatabaseUrlToConnectionString(string databaseUrl)
     sb.Append($"Password={password};");
     sb.Append("SSL Mode=Require;Trust Server Certificate=true;");
     return sb.ToString();
+}
+
+static void ClearStaleEnrichmentData(LibraryDbContext db)
+{
+    // Clear any stale enrichment data from previous implementations
+    var booksWithEnrichment = db.Books
+        .Where(b => b.Category != null || b.Tags != null || b.Description != null)
+        .ToList();
+
+    if (booksWithEnrichment.Any())
+    {
+        foreach (var book in booksWithEnrichment)
+        {
+            book.Category = null;
+            book.Tags = null;
+            book.Description = null;
+            book.UpdatedAtUtc = null;
+        }
+        db.SaveChanges();
+    }
 }
 
 static void SeedBooksIfEmpty(LibraryDbContext db)
