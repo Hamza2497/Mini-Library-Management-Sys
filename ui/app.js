@@ -11,8 +11,6 @@ const googleSignInEl = document.getElementById("googleSignIn");
 const signOutBtn = document.getElementById("signOutBtn");
 const addBookBtn = document.getElementById("addBookBtn");
 
-const navLibrary = document.getElementById("navLibrary");
-const navDashboard = document.getElementById("navDashboard");
 const libraryView = document.getElementById("libraryView");
 const dashboardView = document.getElementById("dashboardView");
 
@@ -107,7 +105,6 @@ async function loadProfile() {
   const token = getToken();
   if (!token) {
     currentRoles = [];
-    navDashboard.classList.add("hidden");
     addBookForm.classList.add("hidden");
     return;
   }
@@ -122,10 +119,8 @@ async function loadProfile() {
   }
 
   if (canManageBooks()) {
-    navDashboard.classList.remove("hidden");
     addBookForm.classList.remove("hidden");
   } else {
-    navDashboard.classList.add("hidden");
     addBookForm.classList.add("hidden");
     showLibrary();
   }
@@ -405,16 +400,6 @@ signOutBtn.addEventListener("click", async () => {
   updateAuthButtons();
   await loadProfile();
   setStatus("Signed out.");
-});
-
-navLibrary.addEventListener("click", (e) => {
-  e.preventDefault();
-  showLibrary();
-});
-
-navDashboard.addEventListener("click", (e) => {
-  e.preventDefault();
-  showDashboard();
 });
 
 document.querySelector(".brand").addEventListener("click", () => {
