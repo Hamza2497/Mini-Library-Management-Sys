@@ -14,6 +14,7 @@ namespace Library.Api.Controllers;
 public class BooksController(LibraryDbContext dbContext, BookEnrichmentService enrichmentService) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     [Authorize(Policy = "MemberOrAbove")]
     public async Task<ActionResult<PagedBooksResponse>> GetBooks(
         [FromQuery] string? q,

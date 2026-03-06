@@ -225,6 +225,9 @@ async function loadBooks() {
     renderBooks(data.items || []);
     setStatus(`Loaded ${data.items?.length || 0} / ${data.total ?? 0} books.`);
   } catch (err) {
+    if (err.message.includes("401")) {
+      return;
+    }
     setStatus(err.message, true);
   }
 }
