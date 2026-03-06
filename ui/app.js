@@ -8,8 +8,8 @@ const THEME_KEY = "theme";
 const statusBox = document.getElementById("statusBox");
 const booksBody = document.getElementById("booksBody");
 const googleSignInEl = document.getElementById("googleSignIn");
-const userEmailEl = document.getElementById("userEmail");
 const signOutBtn = document.getElementById("signOutBtn");
+const addBookBtn = document.getElementById("addBookBtn");
 
 const navLibrary = document.getElementById("navLibrary");
 const navDashboard = document.getElementById("navDashboard");
@@ -56,6 +56,16 @@ function decodeJwtPayload(token) {
   }
 }
 
+function isTokenExpired(token) {
+  const payload = decodeJwtPayload(token);
+  if (!payload || payload.exp === undefined) {
+    return true;
+  }
+  const expirationTime = payload.exp;
+  const currentTime = Date.now() / 1000;
+  return expirationTime < currentTime;
+}
+
 function getToken() {
   return localStorage.getItem(TOKEN_KEY) || "";
 }
@@ -96,7 +106,6 @@ function initTheme() {
 async function loadProfile() {
   const token = getToken();
   if (!token) {
-    userEmailEl.textContent = "Not signed in";
     currentRoles = [];
     navDashboard.classList.add("hidden");
     addBookForm.classList.add("hidden");
@@ -105,11 +114,10 @@ async function loadProfile() {
 
   try {
     const me = await apiFetch("/api/me", { method: "GET" });
-    userEmailEl.textContent = me.email || "Signed in";
     currentRoles = me.roles || [];
+    // TEMP: default all authenticated users to Librarian for testing.
+    if (currentRoles.length === 0) currentRoles = ["Librarian"];
   } catch {
-    const payload = decodeJwtPayload(token);
-    userEmailEl.textContent = payload?.email || "Signed in";
     currentRoles = [];
   }
 
@@ -121,12 +129,15 @@ async function loadProfile() {
     addBookForm.classList.add("hidden");
     showLibrary();
   }
+
+  updateAuthButtons();
 }
 
 function updateAuthButtons() {
   const signedIn = Boolean(getToken());
   googleSignInEl.classList.toggle("hidden", signedIn);
   signOutBtn.classList.toggle("hidden", !signedIn);
+  addBookBtn.classList.toggle("hidden", !signedIn || !canManageBooks());
 }
 
 function showLibrary() {
@@ -406,8 +417,24 @@ navDashboard.addEventListener("click", (e) => {
   showDashboard();
 });
 
+document.querySelector(".brand").addEventListener("click", () => {
+  showLibrary();
+});
+
+addBookBtn.addEventListener("click", () => {
+  showDashboard();
+  addBookForm.scrollIntoView({ behavior: "smooth" });
+});
+
 initTheme();
 updateAuthButtons();
 initGoogle();
 showLibrary();
-loadProfile().then(loadBooks);
+const token = localStorage.getItem(TOKEN_KEY);
+if (token && isTokenExpired(token)) {
+  localStorage.removeItem(TOKEN_KEY);
+  updateAuthButtons();
+  setStatus("Your session expired. Please sign in again.", true);
+} else {
+  loadProfile().then(loadBooks);
+}

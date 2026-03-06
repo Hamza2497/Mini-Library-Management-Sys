@@ -20,7 +20,7 @@
 
       <div class="topbar-left">
         <!-- Brand -->
-        <div class="brand">
+        <div class="brand" id="brandLogo" style="cursor: pointer;">
           <svg class="brand-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22"
                viewBox="0 0 24 24" fill="none" stroke="currentColor"
                stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"
@@ -30,17 +30,11 @@
           </svg>
           <span class="brand-name">Mini Library</span>
         </div>
-
-        <!-- Primary nav links -->
-        <nav class="topbar-nav" aria-label="Primary">
-          <a href="#" id="navLibrary" class="nav-link">Library</a>
-          <a href="#" id="navDashboard" class="nav-link hidden">Dashboard</a>
-        </nav>
       </div>
 
       <div class="topbar-right">
         <button id="themeToggle" class="theme-btn" aria-label="Toggle colour theme">Dark</button>
-        <span id="userEmail" class="user-email">Not signed in</span>
+        <button id="addBookBtn" class="btn btn-sm btn-ghost hidden">Add Book</button>
         <div id="googleSignIn"></div>
         <button id="signOutBtn" class="btn btn-sm btn-ghost hidden">Sign out</button>
       </div>
